@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe
+      convert
+    kompose.version: 1.8.0 (0c0c027)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: rethink-shard
+  name: rethink-shard
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: rethink-shard
+    spec:
+      containers:
+      - args:
+        - rethinkdb
+        - --bind
+        - all
+        - --no-http-admin
+        image: rethinkdb:latest
+        name: rethink-shard
+        resources: {}
+        volumeMounts:
+        - mountPath: /data
+          name: cion
+      restartPolicy: Always
+      volumes:
+      - name: cion
+        persistentVolumeClaim:
+          claimName: cion
+status: {}
