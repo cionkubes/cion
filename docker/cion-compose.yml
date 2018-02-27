@@ -62,9 +62,6 @@ services:
       - net
     ports:
       - 9004:8080
-    deploy:
-      placement:
-        constraints: [node.role == manager]
 
   catalyst:
     image: cion/catalyst:latest
