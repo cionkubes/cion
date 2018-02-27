@@ -19,20 +19,20 @@ services:
         max_attempts: 3
         window: 120s
     environment:
-      - ORCHESTRATOR_ADDRESS=cion_orchestrator:8890
-      - DATABASE_HOST=cion_rethink
+      - ORCHESTRATOR_ADDRESS=orchestrator:8890
+      - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
 #      - LOGLEVEL=20 # DEBUG
 
   orchestrator:
     image: cion/orchestrator:latest
     networks:
-      - backend
+      - backend:
+        aliases:
+          - orchestrator
       - net
-    deploy:
-      replicas: 1
     environment:
-      - DATABASE_HOST=cion_rethink
+      - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
       - LOGLEVEL=20 # DEBUG
     depends_on:
@@ -43,6 +43,8 @@ services:
     command: rethinkdb --bind all --no-http-admin
     networks:
       - rdb-net
+        aliases:
+          - rethink-shard
     volumes:
       - cion:/data
     deploy:
@@ -52,9 +54,11 @@ services:
 
   rethink:
     image: rethinkdb:latest
-    command: rethinkdb proxy --bind all --join cion_rethink-shard
+    command: rethinkdb proxy --bind all --join rethink-shard
     networks:
-      - rdb-net
+      - rdb-net:
+        aliases:
+          - rethink-proxy
       - net
     ports:
       - 9004:8080
@@ -66,8 +70,10 @@ services:
     image: cion/catalyst:latest
     networks:
       - net
+    ports:
+      - 80:80
     environment:
-      - DATABASE_HOST=cion_rethink
+      - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
       - URL_TOKEN=beafa736cb4e2a7e14dadff85572b4ef64843db4a90501ade21b9dbc1a9584ce4ebeadfffe3a469c2087c1aa10dd01001b9be5378c0691cda0748f56792655a
     depends_on:
@@ -77,9 +83,11 @@ services:
     image: cion/api:latest
     networks:
       - net
-      - web
+      - web:
+        aliases:
+          - api
     environment:
-      - DATABASE_HOST=cion_rethink
+      - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
       - LOGLEVEL=20 # DEBUG
     depends_on:
@@ -88,14 +96,16 @@ services:
   web:
     image: cion/web:latest
     networks:
-      - net
       - web
+    environment:
+      - API_HOST=api
+      - API_PORT=5000
     ports:
       - 9003:80
     deploy:
       replicas: 1
     depends_on:
-      - rethink
+      - api
 
 networks:
   net:
