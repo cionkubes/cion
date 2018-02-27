@@ -1,0 +1,152 @@
+version: "3.3"
+
+services:
+  worker:
+    image: cion/worker:latest
+    networks:
+      - backend
+      - net
+    depends_on:
+      - rethink
+      - orchestrator
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - ORCHESTRATOR_ADDRESS=cion_orchestrator:8890
+      - DATABASE_HOST=cion_rethink
+      - DATABASE_PORT=28015
+#      - LOGLEVEL=20 # DEBUG
+
+  orchestrator:
+    image: cion/orchestrator:latest
+    networks:
+      - backend
+      - net
+    deploy:
+      replicas: 1
+    environment:
+      - DATABASE_HOST=cion_rethink
+      - DATABASE_PORT=28015
+      - LOGLEVEL=20 # DEBUG
+    depends_on:
+      - rethink
+
+  rethink-shard:
+    image: rethinkdb:latest
+    command: rethinkdb --bind all --no-http-admin
+    networks:
+      - rdb-net
+    volumes:
+      - cion:/data
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+  rethink:
+    image: rethinkdb:latest
+    command: rethinkdb proxy --bind all --join cion_rethink-shard
+    networks:
+      - rdb-net
+      - net
+    ports:
+      - 9004:8080
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  catalyst:
+    image: cion/catalyst:latest
+    networks:
+      - net
+    environment:
+      - DATABASE_HOST=cion_rethink
+      - DATABASE_PORT=28015
+      - URL_TOKEN=beafa736cb4e2a7e14dadff85572b4ef64843db4a90501ade21b9dbc1a9584ce4ebeadfffe3a469c2087c1aa10dd01001b9be5378c0691cda0748f56792655a
+    depends_on:
+      - rethink
+
+  api:
+    image: cion/api:latest
+    networks:
+      - net
+      - web
+    environment:
+      - DATABASE_HOST=cion_rethink
+      - DATABASE_PORT=28015
+      - LOGLEVEL=20 # DEBUG
+    depends_on:
+      - rethink
+
+  web:
+    image: cion/web:latest
+    networks:
+      - net
+      - web
+    ports:
+      - 9003:80
+    deploy:
+      replicas: 1
+    depends_on:
+      - rethink
+
+networks:
+  net:
+    external: false
+  rdb-net:
+    external: false
+  backend:
+    external: false
+  web:
+    external: false
+
+volumes:
+  cion:
+    driver: local
+
+---
+
+profile: local
+
+services:
+  worker:
+    image: cion/worker:local
+
+  orchestrator:
+    image: cion/orchestrator:local
+
+  catalyst:
+    image: cion/catalyst:local
+
+  api:
+    image: cion/api:local
+
+  web:
+    image: cion/web:local
+
+---
+
+profile: production
+
+services:
+  worker:
+    volumes:
+    secrets:
+      - ca.pem
+      - qa.cert.pem
+      - qa.key.pem
+
+secrets:
+  ca.pem:
+    file: secrets/decrypted/tls/ca.pem
+  qa.cert.pem:
+    file: secrets/decrypted/tls/qa/cert.pem
+  qa.key.pem:
+    file: secrets/decrypted/tls/qa/key.pem
