@@ -27,10 +27,10 @@ services:
   orchestrator:
     image: cion/orchestrator:latest
     networks:
-      - backend:
+      backend:
         aliases:
           - orchestrator
-      - net
+      net: {}
     environment:
       - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
@@ -42,7 +42,7 @@ services:
     image: rethinkdb:latest
     command: rethinkdb --bind all --no-http-admin
     networks:
-      - rdb-net
+      rdb-net:
         aliases:
           - rethink-shard
     volumes:
@@ -56,12 +56,10 @@ services:
     image: rethinkdb:latest
     command: rethinkdb proxy --bind all --join rethink-shard
     networks:
-      - rdb-net:
+      rdb-net: {}
+      net:
         aliases:
           - rethink-proxy
-      - net
-    ports:
-      - 9004:8080
 
   catalyst:
     image: cion/catalyst:latest
@@ -79,8 +77,8 @@ services:
   api:
     image: cion/api:latest
     networks:
-      - net
-      - web:
+      net: {}
+      web:
         aliases:
           - api
     environment:
@@ -157,3 +155,12 @@ secrets:
     file: secrets/decrypted/tls/qa/cert.pem
   qa.key.pem:
     file: secrets/decrypted/tls/qa/key.pem
+
+---
+profile: expose-rdb
+
+services:
+  rethink:
+    ports:
+      - 9004:8080
+      - 28015:28015
