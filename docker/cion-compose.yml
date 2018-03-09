@@ -109,12 +109,11 @@ volumes:
 
 ---
 
-profile: local
+profile: live
 
 services:
   worker:
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - "{CION_ROOT}/workq/workq:/lib/workq/workq"
       - "{CION_ROOT}/cion-interface/cion_interface:/lib/cion-interface/cion_interface"
       - "{CION_ROOT}/rethink-wrapper/async_rethink:/lib/async-rethink/async_rethink"
@@ -129,8 +128,6 @@ services:
     volumes:
       - "{CION_ROOT}/cion-web/lib:/var/www/html"
       - "{CION_ROOT}/cion-web/etc:/etc/caddy"
-    ports:
-      - 80:80
   api:
     volumes:
       - "{CION_ROOT}/rethink-wrapper/async_rethink:/lib/async-rethink/async_rethink"
@@ -138,6 +135,19 @@ services:
   catalyst:
     volumes:
       - "{CION_ROOT}/cion-catalyst/src:/opt/catalyst"
+
+---
+
+profile: local
+
+services:
+  worker:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  web:
+    ports:
+      - 80:80
+  catalyst:
     ports:
       - 8080:80
   rethink:
