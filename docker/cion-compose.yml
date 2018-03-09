@@ -9,8 +9,6 @@ services:
     depends_on:
       - rethink
       - orchestrator
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       replicas: 3
       restart_policy:
@@ -22,7 +20,7 @@ services:
       - ORCHESTRATOR_ADDRESS=orchestrator:8890
       - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
-#      - LOGLEVEL=20 # DEBUG
+      - LOGLEVEL=10 # DEBUG
 
   orchestrator:
     image: cion/orchestrator:latest
@@ -34,7 +32,7 @@ services:
     environment:
       - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
-      - LOGLEVEL=20 # DEBUG
+      - LOGLEVEL=10 # DEBUG
     depends_on:
       - rethink
 
@@ -48,7 +46,6 @@ services:
     volumes:
       - cion:/data
     deploy:
-      replicas: 1
       placement:
         constraints: [node.role == manager]
 
@@ -65,8 +62,6 @@ services:
     image: cion/catalyst:latest
     networks:
       - net
-    ports:
-      - 80:80
     environment:
       - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
@@ -84,7 +79,7 @@ services:
     environment:
       - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
-      - LOGLEVEL=20 # DEBUG
+      - LOGLEVEL=20 # INFO
     depends_on:
       - rethink
 
@@ -95,10 +90,6 @@ services:
     environment:
       - API_HOST=api
       - API_PORT=5000
-    ports:
-      - 9003:80
-    deploy:
-      replicas: 1
     depends_on:
       - api
 
@@ -122,19 +113,36 @@ profile: local
 
 services:
   worker:
-    image: cion/worker:local
-
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{CION_ROOT}/workq/workq:/lib/workq/workq"
+      - "{CION_ROOT}/cion-interface/cion_interface:/lib/cion-interface/cion_interface"
+      - "{CION_ROOT}/rethink-wrapper/async_rethink:/lib/async-rethink/async_rethink"
+      - "{CION_ROOT}/cion-worker/src:/opt/worker"
   orchestrator:
-    image: cion/orchestrator:local
-
-  catalyst:
-    image: cion/catalyst:local
-
-  api:
-    image: cion/api:local
-
+    volumes:
+      - "{CION_ROOT}/workq/workq:/lib/workq/workq"
+      - "{CION_ROOT}/cion-interface/cion_interface:/lib/cion-interface/cion_interface"
+      - "{CION_ROOT}/rethink-wrapper/async_rethink:/lib/async-rethink/async_rethink"
+      - "{CION_ROOT}/cion-orchestrator/src:/opt/orchestrator"
   web:
-    image: cion/web:local
+    volumes:
+      - "{CION_ROOT}/cion-web/lib:/var/www/html"
+      - "{CION_ROOT}/cion-web/etc:/etc/caddy"
+    ports:
+      - 80:80
+  api:
+    volumes:
+      - "{CION_ROOT}/rethink-wrapper/async_rethink:/lib/async-rethink/async_rethink"
+      - "{CION_ROOT}/cion-api/src:/opt/api"
+  catalyst:
+    volumes:
+      - "{CION_ROOT}/cion-catalyst/src:/opt/catalyst"
+    ports:
+      - 8080:80
+  rethink:
+    ports:
+      - 9004:8080
 
 ---
 
@@ -162,5 +170,13 @@ profile: expose-rdb
 services:
   rethink:
     ports:
-      - 9004:8080
       - 28015:28015
+
+---
+profile: rc1
+
+services:
+  worker:
+    image: cion/worker:rc1
+  orchestrator:
+    image: cion/orchestrator:rc1
