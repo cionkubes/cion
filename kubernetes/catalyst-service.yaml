@@ -10,11 +10,13 @@ metadata:
     io.kompose.service: catalyst
   name: catalyst
 spec:
+  type: NodePort
   clusterIP:
   ports:
   - name: catalyst
     port: 8080
-    targetPort: 0
+    targetPort: 80
+    nodePort: 30005
   selector:
     io.kompose.service: catalyst
 status:

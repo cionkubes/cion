@@ -13,8 +13,8 @@ spec:
   clusterIP:
   ports:
   - name: orchestrator
-    port: 8015
-    targetPort: 0
+    port: 8890
+    targetPort: 8890
   selector:
     io.kompose.service: orchestrator
 status:

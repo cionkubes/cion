@@ -21,11 +21,9 @@ spec:
       containers:
       - env:
         - name: DATABASE_HOST
-          value: cion_rethink
+          value: rethink
         - name: DATABASE_PORT
           value: "28015"
-        - name: LOGLEVEL
-          value: "20"
         image: cion/orchestrator:latest
         name: orchestrator
         resources: {}

@@ -12,9 +12,13 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - name: "9004"
+  - name: "webpage"
     port: 9004
     targetPort: 8080
+    nodePort: 30004
+  - name: "database"
+    port: 28015
+    targetPort: 28015
   selector:
     io.kompose.service: rethink
 status:

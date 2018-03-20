@@ -21,7 +21,7 @@ spec:
       containers:
       - env:
         - name: DATABASE_HOST
-          value: cion_rethink
+          value: rethink
         - name: DATABASE_PORT
           value: "28015"
         - name: URL_TOKEN

@@ -12,9 +12,10 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - name: "9003"
+  - name: web
     port: 9003
     targetPort: 80
+    nodePort: 30003
   selector:
     io.kompose.service: web
 status:

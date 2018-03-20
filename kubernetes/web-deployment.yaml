@@ -19,7 +19,12 @@ spec:
         io.kompose.service: web
     spec:
       containers:
-      - image: cion/web:latest
+      - env:
+        - name: API_HOST
+          value: api
+        - name: API_PORT
+          value: "5000"
+        image: cion/web:latest
         name: web
         ports:
         - containerPort: 80
