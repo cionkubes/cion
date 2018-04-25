@@ -1,3 +1,5 @@
+#!/usr/bin/env sh
+
 services=$(docker service ls --format "{{.Name}}" | grep ${1:-cion})
 images=$(docker images --format "{{.CreatedAt}} | {{.ID}} {{.Repository}}:{{.Tag}}" | sort -r)
 

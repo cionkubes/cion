@@ -184,6 +184,14 @@ services:
       - 28015:28015
 
 ---
+profile: expose-orchestrator
+
+services:
+  orchestrator:
+    ports:
+      - 8890:8890
+
+---
 profile: rc1
 
 services:
