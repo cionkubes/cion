@@ -65,10 +65,12 @@ services:
     environment:
       - DATABASE_HOST=rethink-proxy
       - DATABASE_PORT=28015
-      - URL_TOKEN=beafa736cb4e2a7e14dadff85572b4ef64843db4a90501ade21b9dbc1a9584ce4ebeadfffe3a469c2087c1aa10dd01001b9be5378c0691cda0748f56792655a
+      - URL_TOKEN=file:/run/secrets/url.token
       - CADDY_HOST=0.0.0.0:80
     depends_on:
       - rethink
+    secrets:
+      - url.token
 
   api:
     image: cion/api:latest
@@ -157,23 +159,14 @@ services:
 
 ---
 
-profile: production
+profile: qa
 
 services:
   worker:
-    volumes:
     secrets:
-      - ca.pem
+      - qa.ca.pem
       - qa.cert.pem
       - qa.key.pem
-
-secrets:
-  ca.pem:
-    file: secrets/decrypted/tls/ca.pem
-  qa.cert.pem:
-    file: secrets/decrypted/tls/qa/cert.pem
-  qa.key.pem:
-    file: secrets/decrypted/tls/qa/key.pem
 
 ---
 profile: expose-rdb
@@ -190,12 +183,3 @@ services:
   orchestrator:
     ports:
       - 8890:8890
-
----
-profile: rc1
-
-services:
-  worker:
-    image: cion/worker:rc1
-  orchestrator:
-    image: cion/orchestrator:rc1
