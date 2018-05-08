@@ -40,7 +40,7 @@ $ dsd docker/cion-compose.yml --out [profiles...] > my-stack.yml
 
 Open *my-stack.yml* in a text editor, and edit the file to suit your needs. At a bare minimum you need to expose the catalyst and web interface services (the local profile exposes the ports to the host for you). You also need to add all of your docker secrets, except the url token, to the worker container.
 
-You can expose the services through a proxy like [docker flow proxy](http://proxy.dockerflow.com/swarm-mode-stack/), or like shown below you can map the ports to the host. The catalyst needs to be accessible by the image hosting solution e.g. [dockerhub](hub.docker.com) or your [docker registry](https://docs.docker.com/registry/). While the web service needs to be accessible by the end users. Both services use port 80 internally.
+You can expose the services through a proxy like [docker flow proxy](http://proxy.dockerflow.com/swarm-mode-stack/), or, like shown below, you can map the ports to the host. The catalyst needs to be accessible by the image hosting solution, e.g. [dockerhub](hub.docker.com) or your [docker registry](https://docs.docker.com/registry/), while the web service needs to be accessible by the end users. Both services use port 80 internally.
 
 ```yaml
 services:
