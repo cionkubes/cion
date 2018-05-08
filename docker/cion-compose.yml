@@ -110,6 +110,10 @@ volumes:
   cion:
     driver: local
 
+secrets:
+  url.token:
+    external: true
+
 ---
 
 profile: live
