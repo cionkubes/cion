@@ -1,20 +1,20 @@
 # Token
-Because dockerhub does not implement authorization in their webhooks we will need to generate a random string that is used in the catalyst webhook url.
+Because dockerhub does not implement authorization in their webhooks, we will need to generate a random string that is used in the catalyst webhook url.
 
-First create a url safe random string like so
+First create a url-safe random string like so
 ```bash
 $ dd if=/dev/urandom bs=1 count=64 2> /dev/null | base64 | sed -e 's/+/-/g' -e 's/\//_/g' -e 's/=/~/g'
 ```
-Now store that string in a secure way, you will need this when configuring webhooks in dockerhub or docker registry.
+Now store that string in a secure way. You will need this when configuring webhooks in dockerhub or docker registry.
 
-Lets create the docker secret. 
-**NB:** if you don't use the default name `url.token` you have to edit the compose file to reflect this.
+Add the string to docker secrets like this.
+**NB:** if you don't use the default name `url.token`, you have to edit the compose file to reflect this.
 
 ```bash
 $ docker secret create url.token [secure-string]
 ```
 # Dockerhub
-If any repositories in use requires a docker login to pull images from it you must create a secret containing the username and password of a user with read access to the repository. `$repo` refers to the repository in question.
+If any repositories in use requires a docker login to pull images from it, you must create a secret containing the username and password of a user with read access to the repository. `$repo` refers to the repository in question.
 ```bash
 cat << EOF | docker secret create $repo.login.json -
 {
@@ -24,14 +24,14 @@ cat << EOF | docker secret create $repo.login.json -
 EOF
 ```
 # Docker
-In order to add an external docker swarm we need the generate some tls certificates. It is important to understand what is going on and treating the generated files correct. *They are equivalent to root access to the machine running the external swarm.* You can find the offical guide on securing the docker deamon [here](https://docs.docker.com/engine/security/https/).
+In order to add an external docker swarm we need to generate tls certificates. It is important to understand what is going on and to treat the generated files correctly. *They are equivalent to root access to the machine running the external swarm.* You can find the offical guide on securing the docker daemon [here](https://docs.docker.com/engine/security/https/).
 
 #### Generate artifacts
 ```bash
 $ mkdir tls-certs && cd tls-certs
 ```
 
-First we need to generate a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) that we will use to sign our certificates. Make sure the common name is the DNS name of the external docker swarm (referred to as `$HOST` from now on).
+First we need to generate a [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) which we will use to sign our certificates. Make sure the common name is the DNS name of the external docker swarm (referred to as `$HOST` from now on).
 
 ```bash
 $ openssl genrsa -aes256 -out ca-key.pem 4096
@@ -58,7 +58,7 @@ $ openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
 > Email Address []:Sven@home.org.au
 ```
 
-Now lets generate a server certificate and sign it with our CA.
+Generate a server certificate and sign it with our CA.
 ```bash
 $ openssl genrsa -out server-key.pem 4096
 > Generating RSA private key, 4096 bit long modulus
@@ -75,7 +75,8 @@ $ openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pe
 > Getting CA Private Key
 > Enter pass phrase for ca-key.pem:
 ```
-To create the signed client certificates.
+
+Create the signed client certificates.
 ```bash
 $ openssl genrsa -out key.pem 4096
 > Generating RSA private key, 4096 bit long modulus
@@ -116,7 +117,7 @@ $ docker secret create $env.cert.pem /path/to/cert.pem
 ```
 
 #### Configure external swarm to accept tls connections over https
-The external machine needs access to the ca.pem, server-key.pem and server-cert.pem files from the previous section. We need to edit the docker daemon configuration, this is best done by editing the [daemon.json](https://docs.docker.com/engine/reference/commandline/dockerd//#daemon-configuration-file) file usually found in `/etc/docker/daemon.json`. If `/etc/docker/daemon.json` does not exist create it.
+The external machine needs access to the ca.pem, server-key.pem and server-cert.pem files from the previous section. We need to edit the docker daemon configuration. This is best done by editing the [daemon.json](https://docs.docker.com/engine/reference/commandline/dockerd//#daemon-configuration-file) file usually found in `/etc/docker/daemon.json`. If `/etc/docker/daemon.json` does not exist, create it.
 
 Open `/etc/docker/daemon.json` in a text editor. After setting up tls verification the configuration file should resemble this.
 
@@ -133,9 +134,9 @@ Open `/etc/docker/daemon.json` in a text editor. After setting up tls verificati
 }
 ```
 
-Unfortunately if you use systemd to start docker the *hosts* option is already specified in the startup script's command line arguments. Because docker does not support a conflict between cli arguments and `daemon.json` you need to resolve the conflict. If you are not running docker through systemd you can skip this step and restart the docker daemon.
+Unfortunately if you use systemd to start docker, the *hosts* option is already specified in the startup script's command line arguments. Because docker does not support a conflict between command line arguments and `daemon.json`, you need to resolve the conflict. If you are not running docker through systemd, you can skip this step and restart the docker daemon.
 
-Open `/lib/systemd/system/docker.service` in a text editor. We need to modify `daemon.json` and ExecStart such that the hosts is only configured in one of them. I will keep the hosts in `daemon.json` and remove them from ExecStart.
+Open `/lib/systemd/system/docker.service` in a text editor. We need to modify `daemon.json` and ExecStart such that the hosts are only configured in one of them. In the following example they are kept in `daemon.json` and removed from ExecStart.
 
 ```diff
 [Unit]
@@ -172,14 +173,14 @@ StartLimitInterval=60s
 [Install]
 WantedBy=multi-user.target
 ```
-Now lets restart docker
+Now restart docker
 ```bash
 $ systemctl daemon-reload
 $ systemctl restart docker
 ```
 
 # Kubernetes
-In order for the cluster to authorize cion we need to create a service account.
+In order for the cluster to authorize cion, we need to create a service account.
 ```bash
 $ cat > /tmp/serviceaccount.yaml << EOF
 apiVersion: v1
@@ -199,7 +200,7 @@ $ kubectl get secrets
 > default-token-qxcdl   kubernetes.io/service-account-token   3         32d
 ```
 
-First we will need the decoded CA file so our client can verify the tls connection. And we also need the encoded token.
+First we will need the decoded CA file so our client can verify the tls connection. We also need the encoded token.
 
 ```bash
 $ kubectl get secret cion-token-79hrs --output=json | jq '.data["ca.crt"]' --raw-output | base64 -d | docker secret create $env.ca.crt -
