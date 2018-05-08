@@ -3,8 +3,8 @@ A self-hosted solution to automatically update running services in docker swarm 
 
 # Table of Contents
 - [Installation](installation.md)
-- [Environments](envs.md)
-- [Services](services.md)
-- [Repositories](repos.md)
-- [User Managment](users.md)
+- [User Managment](configure.md#user-managment)
+- [Environments](configure.md#environment)
+- [Services](configure.md#service)
+- [Repositories](configure.md#repositories)
 - [Code Documentation](code.md)
