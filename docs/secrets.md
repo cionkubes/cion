@@ -191,7 +191,7 @@ $ kubectl create -f /tmp/serviceaccount.yaml
 > serviceaccount "cion" created
 ```
 
-Kubernetes should automatically have created a secret token with the name `[serviceaccount]-token-[hash]` for the service account. This secret contains all the information needed for connecting to the cluster.
+Kubernetes should automatically have created a secret token with the name `[serviceaccount]-token-[hash]` for the service account. This secret contains all the information needed to connect to the cluster.
 ```bash
 $ kubectl get secrets
 > NAME                  TYPE                                  DATA      AGE
