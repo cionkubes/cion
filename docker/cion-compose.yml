@@ -172,6 +172,14 @@ services:
       - qa.cert.pem
       - qa.key.pem
 
+secrets:
+  qa.ca.pem:
+    external: true
+  qa.cert.pem:
+    external: true
+  qa.key.pem:
+    external: true
+
 ---
 profile: expose-rdb
 
