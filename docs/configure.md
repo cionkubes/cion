@@ -53,12 +53,14 @@ To create a new environment navigate to the environments page, here you should s
 
 ##### Docker TLS
 This connection mode allows you to securely connect to a remote docker environment over TLS. Click here for [help](secrets.md#docker) with setting up the secrets. You will need to fill out the following extra fields.
+
 |Field|Description|
 |---|---|
 |URL|The remote environment's URL, e.g. **tcp://10.68.4.60:2376**|
 |CA|The file with the certificate authority, e.g. **/run/secrets/qa.ca.pem**|
 |Certificate|Client's certificate, e.g. **/run/secrets/qa.cert.pem**|
 |Key|Client's key, e.g. **/run/secrets/qa.key.pem**|
+
 ##### Kubernetes service account
 This connection mode allows you to securely connect to a remote kubernetes environment over with a service account. Click here for [help](secrets.md#kubernetes) with setting up the secrets. You will need to fill out the following extra fields.
 |Field|Description|
