@@ -2,6 +2,15 @@
 
 The cion web interface primarily exists to aid in configuring the automatic deployment of images to services in either docker swarm or kubernetes. Some experimental features may be configurable in a online text editor while a UI is developed for the feature.
 
+### External webhooks
+In order for cion to know about new images uploaded to docker image hosts, external webhooks must be configured in the image hosts.
+
+#### Dockerhub
+@ Haradld
+
+#### Docker registry
+@ Kenan
+
 ### User management
 When cion starts for the first time a admin user will be created with the username and password **admin**, it's necessary to change this password *immediately*.
 
