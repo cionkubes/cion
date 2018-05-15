@@ -3,7 +3,7 @@ Because dockerhub does not implement authorization in their webhooks, we will ne
 
 First create a url-safe random string like so
 ```bash
-$ dd if=/dev/urandom bs=1 count=64 2> /dev/null | base64 | sed -e 's/+/-/g' -e 's/\//_/g' -e 's/=/~/g'
+$ dd if=/dev/urandom bs=1 count=64 2> /dev/null | base64 --wrap=0 | sed -e 's/+/-/g' -e 's/\//_/g' -e 's/=/~/g'
 ```
 Now store that string in a secure way. You will need this when configuring webhooks in dockerhub or docker registry.
 
