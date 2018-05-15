@@ -63,6 +63,7 @@ This connection mode allows you to securely connect to a remote docker environme
 
 ##### Kubernetes service account
 This connection mode allows you to securely connect to a remote kubernetes environment over with a service account. Click here for [help](secrets.md#kubernetes) with setting up the secrets. You will need to fill out the following extra fields.
+
 |Field|Description|
 |---|---|
 |URL|The remote environment's URL, e.g. ****|
@@ -93,6 +94,7 @@ Navigate to the config page from the menu on the left. You can configure reposit
 The config is a json structure consisting of a list of docker image host `users`. A `user` consists of the following properties.
 
 ##### User
+
 |Field|Optional|Description|
 |---|---|---|
 |user|No|The image host username|
@@ -101,6 +103,7 @@ The config is a json structure consisting of a list of docker image host `users`
 |default_glob|Yes|If a repository that is not in the `repos` object is accesses this default value will be used for all repositories under this user|
 
 ##### Repo
+
 |Field|Optional|Description|
 |---|---|---|
 |repo|No|The name of the repository|
