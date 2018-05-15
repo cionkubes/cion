@@ -6,7 +6,11 @@ The cion web interface primarily exists to aid in configuring the automatic depl
 In order for cion to know about new images uploaded to docker image hosts, external webhooks must be configured in the image hosts.
 
 #### Dockerhub
-@ Haradld
+Firsly you will need admin-access to the repository you are adding the webhook to. If you are the owner you will already have this.
+
+Go to the repository page and click `Webhooks`. This will bring you to a new page. Then click the `+` icon next to `WEB HOOKS`.
+
+Enter a descriptive name for your webhook, e.g. 'cion', and the url for the cion-catalyst service. This is probably something like `yourdoman.org/cion-catalyst/dockerhub/<URL_TOKEN>` or `cion.yourdomain.org/dockerhub/<URL_TOKEN>`. This varies according to your setup, as in how you have exposed the catalyst service. `URL_TOKEN` will the token you created in the [step where you generated your secrets](secrets.md#token).
 
 #### Docker registry
 @ Kenan
