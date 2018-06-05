@@ -111,4 +111,83 @@ The config is a json structure consisting of a list of docker image host `users`
 |glob|Yes, default is `(.*)/(.*):(.*)`|A regex used for parsing incoming images, there should be three groups in the regex. The first group matches the user, the second group matches the repo, and the third group matches the tag. These matches are used i.e. when a environment accepts or rejects a tag.|
 
 ### Internal webhooks
-...
+
+Cion can trigger webhooks to other services when certain events occurr within cion. The currently supported event-types are:
+* service-update: this event triggers when cion updates the image of a service
+* new-image: triggers when cion recieves a notification that a new image exists
+
+The following fields configure your webhook. Longer descriptinos are below this list.
+
+* URL: the target URL of the webhook
+* Headers: HTTP-headers to include in the request
+* Event: what event to trigger on (service-update/new-image)
+* Filters/triggers: regex-patterns to match on the event data. If one of these fail the webhook-request is not sent
+* Body: the body of the webhook request
+
+#### Filters
+
+This is a list of name/value pairs. The name is the name of the field in the event data. What fields are contained in the event data varies per event-type. 
+
+The `new-image`-event contains these fields:
+* image-name: name of the image received
+* event: what type of event. `new-image`
+* status: what status this task has. Possible values are: ready, processing, done and erroneous
+* time: epoch time of when the event was recieved or last updated
+
+The `service-update`-event contains these fields:
+* service: name of the service to update
+* image-name: name of the image to update the specified services with
+* environment: what environment to update the service with the specified service-name
+* status: what status this task has. Possible values are: ready, processing, done and erroneous
+* event: what type of event. `service-update`
+* time: epoch time of when the event was recieved or last updated
+
+What cion does when a new event occurrs is go through all the filters of every webhooks that is configured to fire on that specific event. It will go through each webhook and run a `match` with the regex pattern contained in the `value` on the `name` matching a field in the event data.
+
+An example with the event data:
+```JSON
+{
+  "service": "cion_api",
+  "image-name": "cion/api:1.0.0"
+}
+```
+
+and the filters:
+```JSON
+{
+  "image-name": "^cion\/api:\d.\d.\d$"
+}
+```
+
+In this case the filter would pass because the regex pattern defined for the field `image-name` is `^cion\/api:\d.\d.\d$`, and that matches the input string `cion/api:1.0.0`.
+
+But if the event data was:
+```JSON
+{
+  "service": "cion_api",
+  "image-name": "cion/api:2.0.0-rc"
+}
+```
+
+-the webhook would not be fired, because the defined pattern does not match the field `image-name` from the event data (`cion/api:2.0.0-rc`).
+
+#### Body
+The \textbf{body} is the body of the HTTP-request to send to the configured URL. It supports the python format-function. So the user can insert fields from the event data into the body by using curly brackets around field-names in the text. For example:
+
+```python
+{{
+  "service-name": "{service}"
+}}
+````
+
+The above example generates a JSON-body containing exactly one key-value-pair, containing the service-name extracted from the event data. 
+The user has to escape curly brackets, as shown above, due to how python's format-function tries to interpret them as variable-names.
+The above body-string would result in the following when the field "service" in the event data is "cion_api":
+
+```JSON
+{
+  "service-name": "cion_api"
+}
+```
+
+This example used JSON as the content type, but any string and formatting is supported. 
