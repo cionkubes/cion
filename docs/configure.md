@@ -12,9 +12,6 @@ Go to the repository page and click `Webhooks`. This will bring you to a new pag
 
 Enter a descriptive name for your webhook, e.g. 'cion', and the url for the cion-catalyst service. This is probably something like `yourdoman.org/cion-catalyst/dockerhub/<URL_TOKEN>` or `cion.yourdomain.org/dockerhub/<URL_TOKEN>`. This varies according to your setup, as in how you have exposed the catalyst service. `URL_TOKEN` will the token you created in the [step where you generated your secrets](secrets.md#token).
 
-#### Docker registry
-@ Kenan
-
 ### User management
 When cion starts for the first time a admin user will be created with the username and password **admin**, it's necessary to change this password *immediately*.
 
