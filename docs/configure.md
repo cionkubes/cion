@@ -109,3 +109,6 @@ The config is a json structure consisting of a list of docker image host `users`
 |repo|No|The name of the repository|
 |login|Yes|A string pointing to a json file with credentials for logging in to `[user]/[repo]`|
 |glob|Yes, default is `(.*)/(.*):(.*)`|A regex used for parsing incoming images, there should be three groups in the regex. The first group matches the user, the second group matches the repo, and the third group matches the tag. These matches are used i.e. when a environment accepts or rejects a tag.|
+
+### Internal webhooks
+...
