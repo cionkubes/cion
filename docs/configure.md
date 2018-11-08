@@ -113,7 +113,7 @@ Cion can trigger webhooks to other services when certain events occurr within ci
 * service-update: this event triggers when cion updates the image of a service
 * new-image: triggers when cion recieves a notification that a new image exists
 
-The following fields configure your webhook. Longer descriptinos are below this list.
+The following fields configure your webhook. Longer descriptions are below this list.
 
 * URL: the target URL of the webhook
 * Headers: HTTP-headers to include in the request
